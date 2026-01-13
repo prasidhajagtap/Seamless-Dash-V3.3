@@ -25,17 +25,18 @@
         .logo { width: 130px; margin: 0 auto 10px; }
         .title { color: var(--red); font-size: 24px; font-weight: 900; margin: 0; text-transform: uppercase; }
         
-        /* Validation Groups */
         .input-group { margin-bottom: 5px; text-align: left; }
         input { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: var(--blue); outline: none; }
         .nudge { color: var(--red); font-size: 11px; font-weight: 700; margin-top: 4px; visibility: hidden; height: 12px; }
 
         .main-btn { background: linear-gradient(135deg, var(--gold), var(--red)); color: white; border: none; padding: 16px; border-radius: 50px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; box-shadow: 0 5px 15px rgba(160,16,24,0.2); }
         .main-btn:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
         .text-btn { background: none; border: none; color: var(--red); font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 13px; text-decoration: underline; }
 
-        /* HUD & Toast */
+        /* Restored How To Play Panel */
+        .how-to { background: #f0f9ff; padding: 12px; border-radius: 15px; margin: 15px 0; text-align: left; border: 1px solid #d1e9ff; font-size: 12px; }
+        .how-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-weight: 600; color: #444; }
+
         #game-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; pointer-events: none; z-index: 5; }
         .hud-top { position: absolute; top: 15px; width: 92%; left: 4%; display: flex; justify-content: space-between; }
         .stat-pill { background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 20px; font-weight: 800; color: var(--red); font-size: 12px; border: 1px solid #eee; }
@@ -46,7 +47,6 @@
             font-weight: 800; font-size: 18px; animation: toastPulse 1.5s infinite;
         }
         @keyframes toastPulse { 0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); } }
-
         #shield-toast { position: absolute; top: 65px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 6px 18px; border-radius: 30px; font-weight: 800; font-size: 12px; display: none; }
     </style>
 </head>
@@ -65,7 +65,7 @@
             <img src="NEW Seamex logo.png" class="logo">
             <h1 class="title">Seamless Dash</h1>
             
-            <div id="welcome-back" style="display:none; margin:15px 0;">
+            <div id="welcome-back" style="display:none; margin:10px 0;">
                 <div style="font-size:14px; background: #f0f7ff; padding: 10px; border-radius: 12px;">
                     <span id="time-greeting">Good morning</span>, <strong id="user-name"></strong>
                 </div>
@@ -85,12 +85,19 @@
                 <button id="btn-login" class="main-btn" disabled>ENTER SKY</button>
             </div>
 
+            <div class="how-to">
+                <div class="how-item">👆 <strong>Hold</strong> to Fly. <strong>Lift</strong> to End Dash.</div>
+                <div class="how-item">🦠 <strong>Dodge</strong> the Viruses.</div>
+                <div class="how-item">🛡️ <strong>Shields</strong> appear after 50 points!</div>
+            </div>
+
             <div class="lb" id="menu-lb"></div>
+            <div class="text-btn" id="toggle-sound">🔊 Sound: ON</div>
         </div>
 
         <div id="game-over-screen" class="screen-box">
             <h1 class="title">Dash Over</h1>
-            <div id="trivia-box" style="margin:15px 0; font-size:13px; color:#444; background:#fff9e6; padding:15px; border-radius:15px;"></div>
+            <div id="trivia-box" style="margin:15px 0; font-size:13px; color:#444; background:#fff9e6; padding:15px; border-radius:15px; border: 1px solid #ffeeba;"></div>
             <div class="lb" id="death-lb"></div>
             <button id="btn-restart" class="main-btn">DASH AGAIN</button>
             <button class="main-btn" id="btn-share" style="background:var(--blue);">SHARE CHALLENGE</button>
@@ -120,11 +127,14 @@
         shield: 0, user: null, sound: true
     };
 
+    // Refined Seamex-only Trivia
     const TRIVIA = [
-        "Seamex creates delightful experiences. Read more: https://bit.ly/SeamexStory",
-        "Poornata + Seamex = Seamless HR transformation.",
-        "Dodge viruses to maintain your streak in the cloud!",
-        "Shields give you 8 seconds of pure invincibility."
+        "Seamex enables agile digital HR transformations for modern workplaces.",
+        "The Poornata App by Seamex simplifies employee lifecycle management.",
+        "Seamex solutions are built to scale with your organization's growth.",
+        "Empower your workforce with Seamex's intuitive digital platforms.",
+        "Seamex: Driving innovation through seamless employee experiences.",
+        "Did you know? Seamex helps automate complex HR workflows effortlessly."
     ];
 
     const audio = {
@@ -138,7 +148,6 @@
     let player = { x:0, y:0, r:46, tx:0, ty:0, bob:0 };
     let enemies = [], items = [], clouds = [], streaks = [], dots = [];
 
-    // --- Dynamic Greeting Logic ---
     function updateGreeting() {
         const hour = new Date().getHours();
         let greet = "Good evening";
@@ -156,7 +165,7 @@
     }
     window.onresize = resize; resize();
 
-    // --- Validation & Nudges ---
+    // Validation
     const nameIn = document.getElementById('inp-name');
     const idIn = document.getElementById('inp-id');
     const loginBtn = document.getElementById('btn-login');
@@ -164,20 +173,16 @@
     function validate() {
         const nameVal = nameIn.value.trim();
         const idVal = idIn.value.trim();
-        
         const nv = /^[A-Za-z\s]{3,}$/.test(nameVal);
         const iv = /^[0-9]{4,10}$/.test(idVal);
-
         document.getElementById('nudge-name').style.visibility = (nameVal === "" || nv) ? "hidden" : "visible";
         document.getElementById('nudge-id').style.visibility = (idVal === "" || iv) ? "hidden" : "visible";
-        
         loginBtn.disabled = !(nv && iv);
     }
     nameIn.oninput = idIn.oninput = validate;
 
-    // --- Persistence ---
     function initUser() {
-        const saved = localStorage.getItem('seamex_user_v36');
+        const saved = localStorage.getItem('seamex_user_v37');
         if(saved) {
             STATE.user = JSON.parse(saved);
             document.getElementById('user-name').textContent = STATE.user.name.split(' ')[0];
@@ -190,17 +195,16 @@
     initUser();
 
     function updateLB() {
-        const lb = JSON.parse(localStorage.getItem('seamex_lb_v36') || '[]');
+        const lb = JSON.parse(localStorage.getItem('seamex_lb_v37') || '[]');
         const html = lb.slice(0, 5).map((e, i) => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;"><span>#${i+1} ${e.name}</span><strong>${e.score}</strong></div>`).join('') || "No records yet!";
         document.getElementById('menu-lb').innerHTML = html;
         document.getElementById('death-lb').innerHTML = html;
     }
 
-    // --- Game Logic ---
     function startReady() {
         if(!STATE.user) {
             STATE.user = { name: nameIn.value.trim(), id: idIn.value.trim() };
-            localStorage.setItem('seamex_user_v36', JSON.stringify(STATE.user));
+            localStorage.setItem('seamex_user_v37', JSON.stringify(STATE.user));
         }
         STATE.highscore = localStorage.getItem('seamex_hs_' + STATE.user.id) || 0;
         document.getElementById('val-best').textContent = STATE.highscore;
@@ -218,13 +222,11 @@
         STATE.phase = 'GAMEOVER';
         audio.bgm.pause();
         if(STATE.sound) audio.die.play().catch(()=>{});
-        
-        let lb = JSON.parse(localStorage.getItem('seamex_lb_v36') || '[]');
+        let lb = JSON.parse(localStorage.getItem('seamex_lb_v37') || '[]');
         lb.push({ name: STATE.user.name, score: Math.floor(STATE.score) });
         lb.sort((a,b) => b.score - a.score);
-        localStorage.setItem('seamex_lb_v36', JSON.stringify(lb.slice(0, 10)));
+        localStorage.setItem('seamex_lb_v37', JSON.stringify(lb.slice(0, 10)));
         if(STATE.score > STATE.highscore) localStorage.setItem('seamex_hs_' + STATE.user.id, Math.floor(STATE.score));
-        
         updateLB();
         document.getElementById('trivia-box').textContent = TRIVIA[Math.floor(Math.random()*TRIVIA.length)];
         document.body.className = 'state-gameover';
@@ -280,6 +282,7 @@
         clouds.forEach(c => { c.y += c.s * 2.5; if(c.y > H + 100) { c.y = -120; c.x = Math.random()*W; } });
         streaks.forEach(st => { st.y += st.s; if(st.y > H) st.y = -100; });
 
+        // Enemy Logic
         for(let i=enemies.length-1; i>=0; i--) {
             let e = enemies[i]; e.y += e.s;
             const dist = Math.hypot(player.x - e.x, player.y - (e.y - player.bob));
@@ -289,26 +292,42 @@
             }
             if(e.y > H + 100) enemies.splice(i,1);
         }
+
+        // Power-up Collision
+        for(let i=items.length-1; i>=0; i--) {
+            let it = items[i]; it.y += 4;
+            if(Math.hypot(player.x - it.x, player.y - it.y) < 60) {
+                STATE.shield = 480; if(STATE.sound) audio.pwr.play().catch(()=>{});
+                items.splice(i,1);
+            }
+            if(it.y > H + 100) items.splice(i,1);
+        }
         
-        // Spawn Logic
+        // Balanced Spawn Logic
         const rate = 0.015 + (Math.min(STATE.level, 10) * 0.005);
         if(Math.random() < rate) enemies.push({ x:Math.random()*W, y:-60, r:22+Math.random()*20, s:4 + (STATE.level*0.4), img: Math.random()>0.5?document.getElementById('asset-v1'):document.getElementById('asset-v2') });
-        if(Math.random() < 0.004) items.push({ x:Math.random()*W, y:-60, r:30 });
+        
+        // Power-ups spawn ONLY after 50 points
+        if(STATE.score > 50 && Math.random() < 0.003) items.push({ x:Math.random()*W, y:-60, r:30 });
     }
 
     function draw() {
+        // Sky Tinting Logic
+        let topColor = '#e3f2fd', botColor = '#ffffff'; // Default Day
+        if(STATE.level >= 4 && STATE.level < 7) { topColor = '#ff9a9e'; botColor = '#fad0c4'; } // Sunset
+        else if(STATE.level >= 7) { topColor = '#1e3c72'; botColor = '#2a5298'; } // Night
+
         let grad = ctx.createLinearGradient(0,0,0,H);
-        grad.addColorStop(0, '#e3f2fd'); grad.addColorStop(1, '#ffffff');
+        grad.addColorStop(0, topColor); grad.addColorStop(1, botColor);
         ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
 
-        ctx.fillStyle = 'rgba(9, 132, 227, 0.15)';
+        ctx.fillStyle = STATE.level >= 7 ? 'rgba(255,255,255,0.3)' : 'rgba(9, 132, 227, 0.15)';
         dots.forEach(d => { ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill(); });
 
-        ctx.strokeStyle = 'rgba(9, 132, 227, 0.1)'; ctx.lineWidth = 2;
-        streaks.forEach(st => { ctx.beginPath(); ctx.moveTo(st.x, st.y); ctx.lineTo(st.x, st.y+st.l); ctx.stroke(); });
+        ctx.strokeStyle = STATE.level >= 7 ? 'rgba(255,255,255,0.1)' : 'rgba(9, 132, 227, 0.1)'; 
+        ctx.lineWidth = 2; streaks.forEach(st => { ctx.beginPath(); ctx.moveTo(st.x, st.y); ctx.lineTo(st.x, st.y+st.l); ctx.stroke(); });
 
         clouds.forEach(c => ctx.drawImage(document.getElementById('asset-cloud'), c.x - c.w/2, c.y, c.w, c.w*0.6));
-
         enemies.forEach(e => ctx.drawImage(e.img, e.x-e.r, e.y-e.r, e.r*2, e.r*2));
         items.forEach(it => ctx.drawImage(document.getElementById('asset-shield'), it.x-30, it.y-30, 60, 60));
 
@@ -316,7 +335,7 @@
         ctx.save();
         if(STATE.shield > 0) {
             ctx.beginPath(); ctx.arc(player.x, player.y + player.bob, 60, 0, Math.PI*2);
-            ctx.strokeStyle = 'rgba(9, 132, 227, 0.6)'; ctx.lineWidth = 5; ctx.stroke();
+            ctx.strokeStyle = 'rgba(255, 193, 7, 0.8)'; ctx.lineWidth = 5; ctx.stroke();
         }
         ctx.drawImage(document.getElementById('asset-player'), player.x-46, player.y-46 + player.bob, 92, 92);
         ctx.restore();
@@ -328,7 +347,12 @@
     document.getElementById('btn-quick-start').onclick = startReady;
     document.getElementById('btn-restart').onclick = startReady;
     document.getElementById('btn-menu').onclick = () => location.reload();
-    document.getElementById('btn-change').onclick = () => { localStorage.removeItem('seamex_user_v36'); location.reload(); };
+    document.getElementById('btn-change').onclick = () => { localStorage.removeItem('seamex_user_v37'); location.reload(); };
+    document.getElementById('toggle-sound').onclick = () => {
+        STATE.sound = !STATE.sound;
+        document.getElementById('toggle-sound').textContent = STATE.sound ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+        if(!STATE.sound) audio.bgm.pause();
+    };
     document.getElementById('btn-share').onclick = () => {
         const msg = `🚀 I dashed past the viruses and scored ${Math.floor(STATE.score)} in Seamless Dash! https://onelink.to/6kpm3g`;
         if (navigator.share) navigator.share({ text: msg });
