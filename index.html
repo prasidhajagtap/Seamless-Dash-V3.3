@@ -5,49 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Seamless Dash - Seamex</title>
     <style>
-        :root { --red: #A01018; --gold: #FFC107; --blue: #0984e3; --bg: #0a0e14; }
+        :root { --red: #A01018; --gold: #FFC107; --sky: #e3f2fd; --blue: #0984e3; }
         
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; touch-action: none; }
-        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; width: 100%; height: 100%; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #fff; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 2; width: 100%; height: 100%; }
 
-        /* UI Containers */
+        /* UI Layer */
         #ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; }
         .screen-box { 
-            background: rgba(255, 255, 255, 0.98); padding: 25px; border-radius: 30px; width: 88%; max-width: 360px; 
-            text-align: center; pointer-events: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
-            border-top: 10px solid var(--red); display: none; flex-direction: column; max-height: 90vh; overflow-y: auto;
+            background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 30px; width: 88%; max-width: 360px; 
+            text-align: center; pointer-events: auto; box-shadow: 0 15px 45px rgba(0,0,0,0.15); 
+            border-top: 8px solid var(--red); display: none; flex-direction: column; max-height: 90vh; overflow-y: auto;
         }
 
         body.state-menu #start-screen { display: flex; }
         body.state-gameover #game-over-screen { display: flex; }
         body.state-playing #game-hud { display: flex !important; }
 
-        .logo { width: 140px; margin: 0 auto 10px; }
-        .title { color: var(--red); font-size: 26px; font-weight: 900; margin: 0; text-transform: uppercase; }
+        .logo { width: 130px; margin: 0 auto 10px; }
+        .title { color: var(--red); font-size: 24px; font-weight: 900; margin: 0; text-transform: uppercase; }
         
-        /* Inputs */
-        input { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 14px; font-size: 16px; margin-bottom: 10px; box-sizing: border-box; }
-        .main-btn { background: linear-gradient(135deg, var(--gold), var(--red)); color: white; border: none; padding: 16px; border-radius: 50px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        .main-btn:disabled { opacity: 0.5; }
-        .text-btn { background: none; border: none; color: var(--red); font-weight: 700; cursor: pointer; margin-top: 12px; font-size: 13px; text-decoration: underline; }
+        /* Form & Buttons */
+        input { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; margin-bottom: 10px; box-sizing: border-box; }
+        .main-btn { background: linear-gradient(135deg, var(--gold), var(--red)); color: white; border: none; padding: 16px; border-radius: 50px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; margin-top: 10px; box-shadow: 0 5px 15px rgba(160,16,24,0.2); }
+        .main-btn:disabled { opacity: 0.5; filter: grayscale(1); }
+        .text-btn { background: none; border: none; color: var(--red); font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 13px; text-decoration: underline; }
 
         /* HUD */
         #game-hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; pointer-events: none; z-index: 5; }
         .hud-top { position: absolute; top: 15px; width: 92%; left: 4%; display: flex; justify-content: space-between; }
-        .stat-pill { background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 20px; font-weight: 800; color: var(--red); font-size: 12px; border: 1px solid #eee; }
+        .stat-pill { background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 20px; font-weight: 800; color: var(--red); font-size: 12px; border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
-        #shield-toast { position: absolute; top: 65px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 8px 20px; border-radius: 30px; font-weight: bold; font-size: 12px; display: none; }
+        #shield-toast { position: absolute; top: 65px; left: 50%; transform: translateX(-50%); background: var(--blue); color: white; padding: 6px 18px; border-radius: 30px; font-weight: 800; font-size: 12px; display: none; box-shadow: 0 4px 15px rgba(9,132,227,0.3); }
 
-        /* How to play */
-        .how-to { background: #fdf9f0; padding: 15px; border-radius: 15px; margin: 15px 0; text-align: left; border: 1px solid #f0e6cc; }
-        .how-item { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 8px; font-weight: 600; }
+        .how-to { background: #f0f9ff; padding: 15px; border-radius: 15px; margin: 15px 0; text-align: left; border: 1px solid #d1e9ff; }
+        .how-item { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 6px; font-weight: 600; color: #444; }
 
-        /* Leaderboard */
-        .lb { background: #f8f9fa; border-radius: 15px; padding: 12px; margin: 10px 0; font-size: 13px; }
-        .lb-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
-
-        /* Share Area */
-        .share-box { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        .lb { background: #f8f9fa; border-radius: 15px; padding: 12px; margin: 10px 0; font-size: 13px; border: 1px solid #eee; }
+        .lb-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body class="state-menu">
@@ -65,21 +60,21 @@
             <h1 class="title">Seamless Dash</h1>
             
             <div id="welcome-back" style="display:none; margin:15px 0;">
-                <div style="font-size:14px;">Welcome back, <strong id="user-name"></strong></div>
-                <button class="main-btn" id="btn-quick-start">START DASH</button>
-                <button class="text-btn" id="btn-change">Not you? Change User</button>
+                <div style="font-size:14px; background: #f0f7ff; padding: 10px; border-radius: 12px;">Good morning, <strong id="user-name"></strong></div>
+                <button class="main-btn" id="btn-quick-start">START DASHING</button>
+                <button class="text-btn" id="btn-change">Change User</button>
             </div>
 
             <div id="login-form">
-                <input type="text" id="inp-name" placeholder="Full Name (Letters)">
-                <input type="tel" id="inp-id" placeholder="Poornata ID (Numbers)">
-                <button id="btn-login" class="main-btn" disabled>PLAY GAME</button>
+                <input type="text" id="inp-name" placeholder="Full Name (Letters Only)">
+                <input type="tel" id="inp-id" placeholder="Poornata ID (Numbers Only)">
+                <button id="btn-login" class="main-btn" disabled>ENTER SKY</button>
             </div>
 
             <div class="how-to">
                 <div class="how-item">👆 <strong>Hold</strong> to Fly. <strong>Lift</strong> to End.</div>
-                <div class="how-item"><img src="icons8-virus-60.png" width="22"> <strong>Dodge</strong> the Viruses!</div>
-                <div class="how-item"><img id="preview-shield" src="sheild.png" width="22"> <strong>Shield</strong> (8s protection)</div>
+                <div class="how-item">🦠 <strong>Dodge</strong> the Viruses.</div>
+                <div class="how-item">🛡️ <strong>Shield</strong> lasts 8 seconds.</div>
             </div>
 
             <div class="lb" id="menu-lb"></div>
@@ -88,16 +83,13 @@
 
         <div id="game-over-screen" class="screen-box">
             <h1 class="title">Dash Over</h1>
-            <div id="trivia-box" style="margin:15px 0; font-size:14px; color:#555; line-height:1.4; background:#fff9e6; padding:15px; border-radius:15px; font-style:italic;"></div>
+            <div id="trivia-box" style="margin:15px 0; font-size:13px; color:#444; line-height:1.4; background:#fff9e6; padding:15px; border-radius:15px; border: 1px solid #ffeeba;"></div>
             
             <div class="lb" id="death-lb"></div>
 
-            <button id="btn-restart" class="main-btn">TRY AGAIN</button>
-            
-            <div class="share-box">
-                <button class="main-btn" id="btn-share" style="background:var(--blue);">SHARE CHALLENGE</button>
-                <button class="text-btn" id="btn-menu">Main Menu</button>
-            </div>
+            <button id="btn-restart" class="main-btn">DASH AGAIN</button>
+            <button class="main-btn" id="btn-share" style="background:var(--blue);">SHARE CHALLENGE</button>
+            <button class="text-btn" id="btn-menu">Back to Menu</button>
         </div>
     </div>
 
@@ -107,7 +99,7 @@
             <div class="stat-pill">LVL <span id="val-lvl">1</span></div>
             <div class="stat-pill">High Score: <span id="val-best">0</span></div>
         </div>
-        <div id="shield-toast">SHIELD ACTIVE: <span id="shield-timer">8.0</span>s</div>
+        <div id="shield-toast">🛡️ SHIELD: <span id="shield-timer">8.0</span>s</div>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -120,18 +112,19 @@
     const STATE = {
         phase: 'MENU', score: 0, highscore: 0, level: 1,
         shield: 0, user: null, sound: true,
-        bgR: 10, bgG: 14, bgB: 20 // Deep Sky/Space
+        bgOffset: 0
     };
 
     const TRIVIA = [
-        "Seamex uses AI/ML to create delightful employee experiences.",
-        "Integrated with Poornata, Seamex is your one-stop HR shop.",
-        "Seamex drives digital HR transformation across 50+ countries.",
-        "Personalized HR workflows help ABG employees stay agile.",
-        "The Poornata app puts the entire HR ecosystem in your pocket.",
-        "Seamex stands for Seamless Employee Experience."
+        "Seamex creates delightful experiences. Read more: https://bit.ly/SeamexStory",
+        "Poornata + Seamex = Seamless HR transformation.",
+        "Dodge viruses to maintain your streak in the cloud!",
+        "Shields give you 8 seconds of pure invincibility.",
+        "Seamless Dash is powered by the agile Seamex engine.",
+        "Your score helps the Seamex ecosystem grow!"
     ];
 
+    // Audio - Pathing fix: If local, ensure these exist in the same folder
     const audio = {
         bgm: new Audio('bgm.mp3'),
         die: new Audio('Die.mp3'),
@@ -140,27 +133,25 @@
     };
     audio.bgm.loop = true;
 
-    // Entity Groups
-    let player = { x:0, y:0, r:48, tx:0, ty:0, bob:0 };
-    let enemies = [], items = [], stars = [], clouds = [], streaks = [], particles = [];
+    let player = { x:0, y:0, r:46, tx:0, ty:0, bob:0 };
+    let enemies = [], items = [], clouds = [], streaks = [], particles = [], dots = [];
 
     function resize() {
         W = canvas.width = window.innerWidth;
         H = canvas.height = window.innerHeight;
-        // Far stars
-        stars = Array.from({length: 50}, () => ({ x:Math.random()*W, y:Math.random()*H, s:0.2+Math.random()*0.5, r:Math.random()*2 }));
-        // Mid clouds
-        clouds = Array.from({length: 5}, () => ({ x:Math.random()*W, y:Math.random()*H, s:0.8+Math.random(), w:100+Math.random()*100 }));
-        // Fast streaks
-        streaks = Array.from({length: 10}, () => ({ x:Math.random()*W, y:Math.random()*H, s:10+Math.random()*10, l:20+Math.random()*30 }));
+        // Background dots
+        dots = Array.from({length: 40}, () => ({ x:Math.random()*W, y:Math.random()*H, s:0.5+Math.random(), r:1+Math.random()*2 }));
+        // Fresh clouds
+        clouds = Array.from({length: 6}, () => ({ x:Math.random()*W, y:Math.random()*H, s:0.8+Math.random()*1.2, w:120+Math.random()*100 }));
+        // Wind streaks
+        streaks = Array.from({length: 12}, () => ({ x:Math.random()*W, y:Math.random()*H, s:12+Math.random()*8, l:30+Math.random()*40 }));
     }
     window.onresize = resize; resize();
 
-    // --- LOGIC: Validation ---
+    // Validation
     const nameIn = document.getElementById('inp-name');
     const idIn = document.getElementById('inp-id');
     const loginBtn = document.getElementById('btn-login');
-
     function validate() {
         const nv = /^[A-Za-z\s]{3,}$/.test(nameIn.value.trim());
         const iv = /^[0-9]{4,10}$/.test(idIn.value.trim());
@@ -168,16 +159,15 @@
     }
     nameIn.oninput = idIn.oninput = validate;
 
-    // --- LOGIC: User & LB ---
+    // LB & User
     function updateLB() {
-        const lb = JSON.parse(localStorage.getItem('seamex_lb_v33') || '[]');
+        const lb = JSON.parse(localStorage.getItem('seamex_lb_v34') || '[]');
         const html = lb.slice(0, 5).map((e, i) => `<div class="lb-row"><span>#${i+1} ${e.name}</span><strong>${e.score}</strong></div>`).join('') || "No records yet!";
         document.getElementById('menu-lb').innerHTML = html;
         document.getElementById('death-lb').innerHTML = html;
     }
-
     function initUser() {
-        const saved = localStorage.getItem('seamex_user_v33');
+        const saved = localStorage.getItem('seamex_user_v34');
         if(saved) {
             STATE.user = JSON.parse(saved);
             document.getElementById('user-name').textContent = STATE.user.name;
@@ -189,24 +179,22 @@
     initUser();
 
     document.getElementById('btn-change').onclick = () => {
-        localStorage.removeItem('seamex_user_v33');
+        localStorage.removeItem('seamex_user_v34');
         location.reload();
     };
 
-    // --- GAME ENGINE ---
+    // GAME LOOP
     function startReady() {
         if(!STATE.user) {
             STATE.user = { name: nameIn.value.trim(), id: idIn.value.trim() };
-            localStorage.setItem('seamex_user_v33', JSON.stringify(STATE.user));
+            localStorage.setItem('seamex_user_v34', JSON.stringify(STATE.user));
         }
         STATE.highscore = localStorage.getItem('seamex_hs_' + STATE.user.id) || 0;
         document.getElementById('val-best').textContent = STATE.highscore;
-        
         STATE.phase = 'READY';
         STATE.score = 0; STATE.level = 1; STATE.shield = 0;
         enemies = []; items = []; particles = [];
         player.x = W/2; player.y = H*0.75;
-        
         document.body.className = 'state-playing';
         if(!animId) loop();
     }
@@ -215,13 +203,12 @@
         if(STATE.phase !== 'PLAYING') return;
         STATE.phase = 'GAMEOVER';
         audio.bgm.pause();
-        if(STATE.sound) audio.die.play();
+        if(STATE.sound) audio.die.play().catch(()=>{});
         
-        // Save Score
-        let lb = JSON.parse(localStorage.getItem('seamex_lb_v33') || '[]');
+        let lb = JSON.parse(localStorage.getItem('seamex_lb_v34') || '[]');
         lb.push({ name: STATE.user.name, score: Math.floor(STATE.score) });
         lb.sort((a,b) => b.score - a.score);
-        localStorage.setItem('seamex_lb_v33', JSON.stringify(lb.slice(0, 10)));
+        localStorage.setItem('seamex_lb_v34', JSON.stringify(lb.slice(0, 8)));
         if(STATE.score > STATE.highscore) localStorage.setItem('seamex_hs_' + STATE.user.id, Math.floor(STATE.score));
         
         updateLB();
@@ -229,19 +216,19 @@
         document.body.className = 'state-gameover';
     }
 
-    // Input
-    const onDown = (e) => {
+    // Input Handling (Ensuring it's on the Canvas)
+    const handleDown = (e) => {
         if(STATE.phase === 'READY') { STATE.phase = 'PLAYING'; if(STATE.sound) audio.bgm.play().catch(()=>{}); }
         updateTarget(e);
     };
     const updateTarget = (e) => {
         const t = e.touches ? e.touches[0] : e;
-        player.tx = t.clientX; player.ty = t.clientY - 70;
+        player.tx = t.clientX; player.ty = t.clientY - 75;
     };
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onDown(e); });
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleDown(e); });
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); updateTarget(e); });
     canvas.addEventListener('touchend', () => { if(STATE.phase === 'PLAYING') endGame(); });
-    canvas.addEventListener('mousedown', onDown);
+    canvas.addEventListener('mousedown', handleDown);
     canvas.addEventListener('mouseup', () => { if(STATE.phase === 'PLAYING') endGame(); });
 
     function spawn() {
@@ -250,126 +237,117 @@
         if(Math.random() < rate) {
             enemies.push({
                 x: Math.random()*W, y: -60, r: 22+Math.random()*25, 
-                s: 3.5 + Math.random()*3 + (STATE.level * 0.4),
+                s: 4 + Math.random()*2 + (STATE.level * 0.4),
                 img: Math.random() > 0.5 ? document.getElementById('asset-v1') : document.getElementById('asset-v2'),
-                rot: Math.random()*6, rs: (Math.random()-0.5)*0.1
+                rot: Math.random()*6, rs: (Math.random()-0.5)*0.15
             });
         }
         if(Math.random() < 0.004) items.push({ x: Math.random()*W, y: -60, r:30 });
     }
 
     function createSparks(x, y) {
-        for(let i=0; i<12; i++) {
-            particles.push({
-                x, y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                life: 1.0, r: 2 + Math.random()*3, color: '#FFC107'
-            });
+        for(let i=0; i<8; i++) {
+            particles.push({ x, y, vx:(Math.random()-0.5)*12, vy:(Math.random()-0.5)*12, life:1.0, c: '#0984e3' });
         }
     }
 
     function update() {
         if(STATE.phase === 'READY') {
-            player.x = W/2 + Math.sin(Date.now()*0.004)*15;
-            player.y = H*0.75;
+            player.x = W/2 + Math.sin(Date.now()*0.005)*10;
+            player.y = H*0.75 + Math.cos(Date.now()*0.005)*5;
         }
-        if(STATE.phase !== 'PLAYING') return;
+        if(STATE.phase !== 'PLAYING') {
+            dots.forEach(d => { d.y += d.s; if(d.y > H) d.y = -10; });
+            return;
+        }
 
         STATE.score += 0.15;
         document.getElementById('val-score').textContent = Math.floor(STATE.score);
         document.getElementById('val-lvl').textContent = STATE.level;
 
         if(Math.floor(STATE.score) > 0 && Math.floor(STATE.score) % 100 === 0 && STATE.score % 1 < 0.16) {
-            STATE.level++; if(STATE.sound) audio.lvl.play();
+            STATE.level++; if(STATE.sound) audio.lvl.play().catch(()=>{});
         }
 
-        // Bobbing & Lerp
-        player.bob = Math.sin(Date.now()*0.005) * 8;
-        player.x += (player.tx - player.x) * 0.2;
-        player.y += (player.ty - player.y) * 0.2;
+        player.bob = Math.sin(Date.now()*0.006) * 6;
+        player.x += (player.tx - player.x) * 0.18;
+        player.y += (player.ty - player.y) * 0.18;
 
         if(STATE.shield > 0) {
             STATE.shield--;
             document.getElementById('shield-toast').style.display = 'block';
             document.getElementById('shield-timer').textContent = (STATE.shield/60).toFixed(1);
-        } else {
-            document.getElementById('shield-toast').style.display = 'none';
-        }
+        } else { document.getElementById('shield-toast').style.display = 'none'; }
 
-        // Atmosphere Motion
-        stars.forEach(s => { s.y += s.s; if(s.y > H) s.y = -10; });
-        clouds.forEach(c => { c.y += c.s; if(c.y > H + 50) { c.y = -60; c.x = Math.random()*W; } });
+        // Parallax Movement
+        dots.forEach(d => { d.y += d.s * 2; if(d.y > H) d.y = -10; });
+        clouds.forEach(c => { c.y += c.s * 2.5; if(c.y > H + 100) { c.y = -120; c.x = Math.random()*W; } });
         streaks.forEach(st => { st.y += st.s; if(st.y > H) st.y = -100; });
 
-        // Entities
+        // Collision Logic
         for(let i=enemies.length-1; i>=0; i--) {
             let e = enemies[i]; e.y += e.s; e.rot += e.rs;
-            const d = Math.hypot(player.x - e.x, player.y - e.y);
-            if(d < player.r + e.r - 12) {
-                if(STATE.shield > 0) {
-                    createSparks(e.x, e.y);
-                    enemies.splice(i, 1);
-                } else { endGame(); return; }
+            const d = Math.hypot(player.x - e.x, player.y - (e.y - player.bob));
+            if(d < player.r + e.r - 10) {
+                if(STATE.shield > 0) { createSparks(e.x, e.y); enemies.splice(i, 1); }
+                else { endGame(); return; }
             }
             if(e.y > H + 100) enemies.splice(i,1);
         }
         for(let i=items.length-1; i>=0; i--) {
-            let it = items[i]; it.y += 4;
-            if(Math.hypot(player.x - it.x, player.y - it.y) < 65) {
-                STATE.shield = 480; if(STATE.sound) audio.pwr.play(); items.splice(i, 1);
+            let it = items[i]; it.y += 4.5;
+            if(Math.hypot(player.x - it.x, player.y - it.y) < 60) {
+                STATE.shield = 480; if(STATE.sound) audio.pwr.play().catch(()=>{}); items.splice(i,1);
             }
+            if(it.y > H + 100) items.splice(i,1);
         }
-        // Particles
-        for(let i=particles.length-1; i>=0; i--) {
-            let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.04;
-            if(p.life <= 0) particles.splice(i, 1);
-        }
+        particles.forEach((p,i) => { p.x += p.vx; p.y += p.vy; p.life -= 0.05; if(p.life <= 0) particles.splice(i,1); });
         spawn();
     }
 
     function draw() {
-        ctx.fillStyle = '#101a26'; ctx.fillRect(0,0,W,H); // Clean deep sky
+        // Fresh Good Morning Gradient
+        let grad = ctx.createLinearGradient(0,0,0,H);
+        grad.addColorStop(0, '#e3f2fd'); grad.addColorStop(1, '#ffffff');
+        ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
 
-        // Stars & Streaks
-        ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); });
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+        // Background dots
+        ctx.fillStyle = 'rgba(9, 132, 227, 0.15)';
+        dots.forEach(d => { ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI*2); ctx.fill(); });
+
+        // Wind Streaks
+        ctx.strokeStyle = 'rgba(9, 132, 227, 0.1)'; ctx.lineWidth = 2;
         streaks.forEach(st => { ctx.beginPath(); ctx.moveTo(st.x, st.y); ctx.lineTo(st.x, st.y+st.l); ctx.stroke(); });
 
         // Clouds
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        clouds.forEach(c => { ctx.beginPath(); ctx.ellipse(c.x, c.y, c.w/2, 25, 0, 0, Math.PI*2); ctx.fill(); });
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        clouds.forEach(c => { ctx.beginPath(); ctx.ellipse(c.x, c.y, c.w/2, 30, 0, 0, Math.PI*2); ctx.fill(); });
 
-        // Entities
+        // Enemies
         enemies.forEach(e => {
             ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.rot);
             ctx.drawImage(e.img, -e.r, -e.r, e.r*2, e.r*2); ctx.restore();
         });
         items.forEach(it => ctx.drawImage(document.getElementById('asset-shield'), it.x-30, it.y-30, 60, 60));
-        
-        // Particles
-        particles.forEach(p => {
-            ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0;
-        });
+        particles.forEach(p => { ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; });
 
-        // Player
+        // Player (AVA)
         ctx.save();
         if(STATE.shield > 0) {
-            ctx.beginPath(); ctx.arc(player.x, player.y + player.bob, 62, 0, Math.PI*2);
-            ctx.strokeStyle = '#0984e3'; ctx.lineWidth = 6; ctx.stroke();
+            ctx.beginPath(); ctx.arc(player.x, player.y + player.bob, 60, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(9, 132, 227, 0.6)'; ctx.lineWidth = 5; ctx.stroke();
         }
-        ctx.drawImage(document.getElementById('asset-player'), player.x-48, player.y-48 + player.bob, 96, 96);
+        ctx.drawImage(document.getElementById('asset-player'), player.x-46, player.y-46 + player.bob, 92, 92);
         ctx.restore();
     }
 
     function loop() { update(); draw(); animId = requestAnimationFrame(loop); }
 
-    // --- UI ACTIONS ---
+    // UI LISTENERS
     document.getElementById('btn-login').onclick = startReady;
     document.getElementById('btn-quick-start').onclick = startReady;
     document.getElementById('btn-restart').onclick = startReady;
     document.getElementById('btn-menu').onclick = () => location.reload();
-    
     document.getElementById('toggle-sound').onclick = () => {
         STATE.sound = !STATE.sound;
         document.getElementById('toggle-sound').textContent = STATE.sound ? "🔊 Sound: ON" : "🔇 Sound: OFF";
@@ -377,12 +355,12 @@
     };
 
     document.getElementById('btn-share').onclick = async () => {
-        const msg = `🚀 I dashed past the viruses and scored ${Math.floor(STATE.score)} in Seamless Dash! Can you beat me? \n\nDownload the Poornata App to play: https://onelink.to/6kpm3g`;
+        const msg = `🚀 I dashed past the viruses and scored ${Math.floor(STATE.score)} in Seamless Dash! Can you beat my streak? \n\nDownload the Poornata App to play: https://onelink.to/6kpm3g`;
         if (navigator.share) {
             navigator.share({ title: 'Seamless Dash Challenge', text: msg, url: 'https://onelink.to/6kpm3g' }).catch(()=>{});
         } else {
             await navigator.clipboard.writeText(msg);
-            alert("Challenge copied to clipboard! Share it with your friends.");
+            alert("Challenge copied to clipboard!");
         }
     };
 
